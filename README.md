@@ -12,12 +12,34 @@ specified by the analytics team. We support Sparkify's scalability goals by auto
 management using the [AWS Python SDK (Boto3)](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html).
 
 ## How to Run
-Clone this repository and replace the `dwh.cfg` configuration file with details of your own AWS account. 
-
+1. Clone this repository and install the requirements.
 ```
-pip3 install -r requirements.txt
+$ pip3 install -r requirements.txt
+```
+
+2. Export your AWS Account credentials as environment variables in your terminal window:
+```
+$ setenv AWS_ACCESS_KEY_ID=<YOUR_AWS_ACCESS_KEY_ID>
+$ setenv AWS_SECRET_ACCESS_KEY=<YOUR_AWS_ACCESS_KEY_ID>
+```
+
+3a. **OPTIONAL:** Run the Redshift setup script to create the necessary IAM role, permissions, Redshift cluster if you do
+not already have those set up.
+```
+$ python3 setup_redshift.py
+```
+
+3b. Replace the `dwh.cfg` configuration file with your AWS details
+
+4. Run the ETL scripts to load the data into the Redshift Cluster
+```
 python3 create_tables.py
 python3 etl.py
+```
+
+5. **OPTIONAL** Run the teardown script to clean up your AWS resources
+```
+$ python3 teardown_redshift.py
 ```
 
 #### DB Schema Design

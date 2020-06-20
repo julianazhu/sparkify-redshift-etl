@@ -11,7 +11,6 @@ songs       - songs in music database
 artists     - artists in music database
 time        - timestamps of records in songplays broken down into specific units
 """
-
 import configparser
 import psycopg2
 from sql_queries import copy_table_queries, insert_table_queries
