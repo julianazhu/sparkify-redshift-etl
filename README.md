@@ -20,6 +20,10 @@ python3 create_tables.py
 python3 etl.py
 ```
 
+#### DB Schema Design
+
+#### ETL Pipeline
+
 #### Project Files
 * **etl.py** - The main script that runs the ETL Pipeline from S3 to Redshift.
 * **create_tables.py** - Creates the tables on Redshift.
