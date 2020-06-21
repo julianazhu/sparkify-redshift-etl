@@ -1,5 +1,4 @@
-"""
-This testing suite defines test for setting up the Redshift cluster.
+"""Defines tests for setting up the Redshift cluster.
 
 VERY IMPORTANT: Imports functions from `etl.py` individually so
 that the `moto` mocks are set up before the `boto3` client is established.
