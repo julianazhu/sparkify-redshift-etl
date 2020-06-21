@@ -25,8 +25,8 @@ $ pip3 install -r requirements.txt
 2. Export your AWS Account credentials as environment variables in your terminal 
 window:
 ```
-$ setenv AWS_ACCESS_KEY_ID=<YOUR_AWS_ACCESS_KEY_ID>
-$ setenv AWS_SECRET_ACCESS_KEY=<YOUR_AWS_ACCESS_KEY_ID>
+$ export AWS_ACCESS_KEY_ID=<YOUR_AWS_ACCESS_KEY_ID>
+$ export AWS_SECRET_ACCESS_KEY=<YOUR_AWS_ACCESS_KEY_ID>
 ```
 
 3a. **OPTIONAL:** Run the Redshift setup script to create the necessary IAM 
@@ -54,11 +54,18 @@ $ python3 teardown_redshift.py
 
 ## ETL Pipeline
 
+
+## Sample Analytical Queries
+
+
 #### Project Files
 * _etl.py_ - The main script that runs the ETL Pipeline from S3 to Redshift.
+* _setup_redshift.py_ - A script that sets up the required AWS resources
+ including IAM role, permissions, Redshift cluster and DB.
 * _create_tables.py_ - Creates the tables on Redshift.
 * _sql_queries.py_ - Queries specified by the Sparkify Analytics team.
-* _dwh.cfg_ - Configuration file defining constants related to AWS resources.
+* _dwh_config.yaml_ - Configuration file defining constants related to AWS
+ resources.
 
 ## Data Source - The Million Song Dataset
 Thierry Bertin-Mahieux, Daniel P.W. Ellis, Brian Whitman, and Paul Lamere.

@@ -10,34 +10,44 @@ This will create:
     - 1x Redshift Cluster
 
 Role & cluster details e.g. number of nodes can be configured by updating
-`dwh.cfg` prior to running this script.
+`dwh_config.json` prior to running this script.
 
 Typical Usage example:
-    $ setenv AWS_ACCESS_KEY_ID=<your_aws_access_key_id>
-    $ setenv AWS_ACCESS_KEY_ID=<your_aws_access_key_id>
+    $ export AWS_ACCESS_KEY_ID=<your_aws_access_key_id>
+    $ export AWS_SECRET_ACCESS_KEY=<your_aws_secret_access_key>
     $ python3 setup_redshift.py
 """
 import os
+import time
 import json
-import configparser
 import boto3
 
 AWS_ACCESS_KEY = os.environ['AWS_ACCESS_KEY_ID']
 AWS_SECRET = os.environ['AWS_SECRET_ACCESS_KEY']
+CFG_FILE = 'dwh_config.json'
 
 
 def get_aws_clients(config):
-    ec2 = boto3.resource("ec2",
-                         region_name=config['AWS']['REGION'],
-                         aws_access_key_id=AWS_ACCESS_KEY,
-                         aws_secret_access_key=AWS_SECRET
-                         )
+    """Retrieves AWS clients for iam & redshift services
 
-    s3 = boto3.resource("s3",
-                        region_name=config['AWS']['REGION'],
-                        aws_access_key_id=AWS_ACCESS_KEY,
-                        aws_secret_access_key=AWS_SECRET
-                        )
+    Args:
+        config: a ConfigParser object
+
+    Returns:
+        s3: AWS client object for s3 service
+        redshift: AWS client object for Redshift service
+    """
+    # ec2 = boto3.resource("ec2",
+    #                      region_name=config['AWS']['REGION'],
+    #                      aws_access_key_id=AWS_ACCESS_KEY,
+    #                      aws_secret_access_key=AWS_SECRET
+    #                      )
+    #
+    # s3 = boto3.resource("s3",
+    #                     region_name=config['AWS']['REGION'],
+    #                     aws_access_key_id=AWS_ACCESS_KEY,
+    #                     aws_secret_access_key=AWS_SECRET
+    #                     )
 
     iam = boto3.client("iam",
                        region_name=config['AWS']['REGION'],
@@ -59,6 +69,12 @@ def create_iam_role(config, iam):
     Args:
         config: a ConfigParser object
         iam: a boto3 client object for the AWS IAM service
+
+    Returns:
+        A dict of the created IAM role's attributes
+
+    Raises:
+        ClientError: an error occurred in the client
     """
     try:
         dwhRole = iam.create_role(
@@ -69,14 +85,14 @@ def create_iam_role(config, iam):
             ),
             Description='Role for Accessing Redshift data warehouse'
         )
-        print(f"Created IAM Role: {config['IAM_ROLE']['NAME']}")
+        print("Created IAM Role: ", config['IAM_ROLE']['NAME'])
+        return dwhRole
     except Exception as e:
         print(e)
-    return dwhRole
 
 
-def attach_managed_policy(config, iam):
-    """Attaches S3 & EC2 access policy to the newly created IAM role
+def attach_iam_role_policy(config, iam):
+    """Creates & attaches S3 & EC2 policy to the newly created IAM role
 
     Attaches a policy to an AWS IAM role for read-only access to
     S3 buckets and Redshift service-role access to EC2.
@@ -88,49 +104,89 @@ def attach_managed_policy(config, iam):
     Returns:
         None
     """
-    managed_policy_name = config['IAM_ROLE']['NAME'] + "-policy"
+    managed_policy_name = config['IAM_ROLE']['POLICY_NAME']
     response = iam.create_policy(
         PolicyName=managed_policy_name,
         PolicyDocument=json.dumps(config['IAM_ROLE']['MANAGED_POLICY'])
     )
-    print(f" Created managed policy: {managed_policy_name}")
+    print("Created managed policy: ", managed_policy_name)
 
-    iam.attach_role_policy(
-        PolicyArn=response['ARN'],
+    result = iam.attach_role_policy(
+        PolicyArn=response['Policy']['Arn'],
         RoleName=config['IAM_ROLE']['NAME']
     )
-    print(f"Attached policy: {managed_policy_name} to IAM role:"
-          f" {config['IAM_ROLE']['NAME']}")
+    print(
+        "Attached policy: %s to IAM Role %s".format(
+            managed_policy_name,
+            config['IAM_ROLE']['NAME']
+        )
+    )
+    return result
 
 
-def start_redshift_cluster(config, redshift):
+def start_redshift_cluster(config, redshift, role_arn):
+    """ Creates a Redshift cluster based on configs
+
+    Args:
+        config: a ConfigParser object
+        redshift: a boto3 client object for the AWS IAM service
+        role_arn: String
+
+    Returns:
+         None
+    """
     try:
         response = redshift.create_cluster(
             DBName=config['CLUSTER']['DB_NAME'],
-            ClusterIdentifier=DWH_CLUSTER_IDENTIFIER,
-            ClusterType='multi-node',
-            NodeType='dc2.large',
-            MasterUsername=DWH_DB_USER,
-            MasterUserPassword=DWH_DB_PASSWORD,
-            Port=int(DWH_PORT),
-            NumberOfNodes=2,
-            PubliclyAccessible=True,
-            IamRoles=['arn:aws:iam::711914867513:role/dwhRole']
+            ClusterIdentifier=config['CLUSTER']['IDENTIFIER'],
+            ClusterType=config['CLUSTER']['CLUSTER_TYPE'],
+            NodeType=config['CLUSTER']['NODE_TYPE'],
+            MasterUsername=config['CLUSTER']['DB_USER'],
+            MasterUserPassword=config['CLUSTER']['DB_PASSWORD'],
+            Port=int(config['CLUSTER']['DB_PORT']),
+            NumberOfNodes=int(config['CLUSTER']['NUM_NODES']),
+            IamRoles=[role_arn]
         )
+        print("Created Redshift Cluster: ", config['CLUSTER']['IDENTIFIER'])
 
     except Exception as e:
         print(e)
 
 
+def poll_cluster_live(config, redshift):
+    """ Repeatedly polls a redshift cluster until its status is `available`
+
+    Args:
+        config: a ConfigParser object
+        redshift: a boto3 client object for the AWS IAM service
+
+    Returns:
+         None
+    """
+    print("Waiting for cluster to become live:")
+
+    cluster_available=False
+    while not cluster_available:
+        time.sleep(30)
+        cluster_available = redshift.describe_clusters(
+            ClusterIdentifier=config['CLUSTER']['IDENTIFIER']
+        )['Clusters'][0]['ClusterStatus']
+
+    print("Cluster %s is now live!".format(config['CLUSTER']['IDENTIFIER']))
+
+
 def main():
-    config = configparser.ConfigParser()
-    config.read_file(open('dwh.cfg'))
+    with open(CFG_FILE) as f:
+        config = json.load(f)
 
-    ec2, s3, iam, redshift = get_aws_clients(config)
-    dwhRole = create_iam_role(config, iam)
-    attach_managed_policy(config, iam)
-    start_redshift_cluster(config, redshift)
+    iam, redshift = get_aws_clients(config)
+    create_iam_role(config, iam)
+    attach_iam_role_policy(config, iam)
+    role_arn = iam.get_role(RoleName=config['IAM_ROLE']['NAME'])['Role']['Arn']
+    start_redshift_cluster(config, redshift, role_arn)
+    poll_cluster_live(redshift)
 
+    print("All done, exit script.")
 
 
 if __name__ == "__main__":
