@@ -46,7 +46,7 @@ python3 etl.py
 
 5. **OPTIONAL** Run the teardown script to clean up your AWS resources
 ```
-$ python3 teardown_redshift.py
+$ python3 cleanup_redshift.py
 ```
 
 ## DB Schema Design
@@ -61,6 +61,8 @@ $ python3 teardown_redshift.py
 #### Project Files
 * _etl.py_ - The main script that runs the ETL Pipeline from S3 to Redshift.
 * _setup_redshift.py_ - A script that sets up the required AWS resources
+ including IAM role, permissions, Redshift cluster and DB.
+* _cleanup_redshift.py_ - A script that removes up created AWS resources
  including IAM role, permissions, Redshift cluster and DB.
 * _create_tables.py_ - Creates the tables on Redshift.
 * _sql_queries.py_ - Queries specified by the Sparkify Analytics team.

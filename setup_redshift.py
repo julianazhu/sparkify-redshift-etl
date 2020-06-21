@@ -18,7 +18,6 @@ Typical Usage example:
     $ python3 setup_redshift.py
 """
 import os
-import time
 import json
 import boto3
 import time
@@ -57,11 +56,11 @@ def get_aws_clients(config):
                        )
 
     redshift = boto3.client("redshift",
-                            region_name=REGION,
+                            region_name=config['AWS']['REGION'],
                             aws_access_key_id=AWS_ACCESS_KEY,
                             aws_secret_access_key=AWS_SECRET
                             )
-    return ec2, s3, iam, redshift
+    return iam, redshift
 
 
 def create_iam_role(config, iam):
@@ -73,23 +72,16 @@ def create_iam_role(config, iam):
 
     Returns:
         A dict of the created IAM role's attributes
-
-    Raises:
-        ClientError: an error occurred in the client
     """
-    try:
-        dwhRole = iam.create_role(
-            Path='/',
-            RoleName=config['IAM_ROLE']['NAME'],
-            AssumeRolePolicyDocument=json.dumps(
-                config['IAM_ROLE']['TRUST_POLICY']
-            ),
-            Description='Role for Accessing Redshift data warehouse'
-        )
-        print("Created IAM Role: ", config['IAM_ROLE']['NAME'])
-        return dwhRole
-    except Exception as e:
-        print(e)
+    print("Creating IAM Role: ", config['IAM_ROLE']['NAME'])
+    iam.create_role(
+        Path='/',
+        RoleName=config['IAM_ROLE']['NAME'],
+        AssumeRolePolicyDocument=json.dumps(
+            config['IAM_ROLE']['TRUST_POLICY']
+        ),
+        Description='Role for Accessing Redshift data warehouse'
+    )
 
 
 def attach_iam_role_policy(config, iam):
@@ -106,23 +98,23 @@ def attach_iam_role_policy(config, iam):
         A dict with AWS API response metadata on the attach_role_policy call
     """
     managed_policy_name = config['IAM_ROLE']['POLICY_NAME']
+    print("Creating managed policy: ", managed_policy_name)
+
     response = iam.create_policy(
         PolicyName=managed_policy_name,
         PolicyDocument=json.dumps(config['IAM_ROLE']['MANAGED_POLICY'])
     )
-    print("Created managed policy: ", managed_policy_name)
 
-    response = iam.attach_role_policy(
-        PolicyArn=response['Policy']['Arn'],
-        RoleName=config['IAM_ROLE']['NAME']
-    )
     print(
-        "Attached policy: %s to IAM Role %s".format(
+        "Attaching policy: {} to IAM Role {}".format(
             managed_policy_name,
             config['IAM_ROLE']['NAME']
         )
     )
-    return response
+    iam.attach_role_policy(
+        PolicyArn=response['Policy']['Arn'],
+        RoleName=config['IAM_ROLE']['NAME']
+    )
 
 
 def start_redshift_cluster(config, redshift, role_arn):
@@ -136,23 +128,18 @@ def start_redshift_cluster(config, redshift, role_arn):
     Returns:
         A dict with the AWS API response metadata of the create_cluster call
     """
-    try:
-        response = redshift.create_cluster(
-            DBName=config['CLUSTER']['DB_NAME'],
-            ClusterIdentifier=config['CLUSTER']['IDENTIFIER'],
-            ClusterType=config['CLUSTER']['CLUSTER_TYPE'],
-            NodeType=config['CLUSTER']['NODE_TYPE'],
-            MasterUsername=config['CLUSTER']['DB_USER'],
-            MasterUserPassword=config['CLUSTER']['DB_PASSWORD'],
-            Port=int(config['CLUSTER']['DB_PORT']),
-            NumberOfNodes=int(config['CLUSTER']['NUM_NODES']),
-            IamRoles=[role_arn]
-        )
-        print("Created Redshift Cluster: ", config['CLUSTER']['IDENTIFIER'])
-        return response
-
-    except Exception as e:
-        print(e)
+    print("Creating Redshift Cluster: ", config['CLUSTER']['IDENTIFIER'])
+    redshift.create_cluster(
+        DBName=config['CLUSTER']['DB_NAME'],
+        ClusterIdentifier=config['CLUSTER']['IDENTIFIER'],
+        ClusterType=config['CLUSTER']['CLUSTER_TYPE'],
+        NodeType=config['CLUSTER']['NODE_TYPE'],
+        MasterUsername=config['CLUSTER']['DB_USER'],
+        MasterUserPassword=config['CLUSTER']['DB_PASSWORD'],
+        Port=int(config['CLUSTER']['DB_PORT']),
+        NumberOfNodes=int(config['CLUSTER']['NUM_NODES']),
+        IamRoles=[role_arn]
+    )
 
 
 def confirm_cluster_available(config, redshift):
@@ -170,6 +157,7 @@ def confirm_cluster_available(config, redshift):
     timeout = time.time() + 60 * 6
     cluster_status = "not_available"
     while cluster_status != "available":
+        print("...", end='')    # loading "bar"
         if time.time() >= timeout:
             print("Cluster response has timed out. Please run "
                   "redshift_cleanup.")
@@ -180,7 +168,7 @@ def confirm_cluster_available(config, redshift):
         )['Clusters'][0]['ClusterStatus']
         time.sleep(30)
 
-    print("Cluster %s is now live!".format(config['CLUSTER']['IDENTIFIER']))
+    print("Cluster {} is now live!".format(config['CLUSTER']['IDENTIFIER']))
     return cluster_status
 
 
