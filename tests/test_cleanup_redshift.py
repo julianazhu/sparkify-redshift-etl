@@ -1,4 +1,4 @@
-"""Defines tests for setting up the Redshift cluster.
+"""Defines tests for cleaning up the Redshift cluster, IAM roles & polices.
 
 VERY IMPORTANT: Use local Python imports in each test to ensure moto mocks
 established before clients are set up (avoiding potential actual AWS
@@ -42,36 +42,8 @@ def iam(aws_credentials):
         yield boto3.client('iam', region_name='eu-central-1')
 
 
-def test_creates_iam_role_and_attach_policy(config, iam):
-    from setup_redshift import create_iam_role
-    from setup_redshift import attach_iam_role_policy
-
-    with mock_iam():
-        result = create_iam_role(config, iam)
-        assert result['Role']['RoleName'] == config['IAM_ROLE']['NAME']
-
-        response = attach_iam_role_policy(config, iam)
-        assert response['ResponseMetadata']['HTTPStatusCode'] == 200
-
-
-def test_creates_redshift_cluster(config, redshift):
-    from setup_redshift import start_redshift_cluster
-
-    with mock_redshift():
-        role_arn = "arn:aws:iam::711914867513:role/dwhRole"
-
-        response = start_redshift_cluster(config, redshift, role_arn)
-        assert response['ResponseMetadata']['HTTPStatusCode'] == 200
-
-
-def test_confirms_cluster_available(config, redshift, monkeypatch):
-    from setup_redshift import confirm_cluster_available
-    import time
-
-    def sleep(seconds):
-        pass
-
-    monkeypatch.setattr(time, 'sleep', sleep)
+def test_deletes_redshift_cluster(config, redshift):
+    from cleanup_redshift import delete_redshift_cluster
 
     with mock_redshift():
         redshift.create_cluster(
@@ -81,6 +53,18 @@ def test_confirms_cluster_available(config, redshift, monkeypatch):
             MasterUserPassword=config['CLUSTER']['DB_PASSWORD']
         )
 
-        result = confirm_cluster_available(config, redshift)
-        assert result == 'available'
+        response = delete_redshift_cluster(config, redshift)
+        assert response['ResponseMetadata']['HTTPStatusCode'] == 200
 
+
+def test_deletes_iam_role(config, iam):
+    from cleanup_redshift import delete_iam_role
+
+    with mock_iam():
+        iam.create_role(
+            RoleName=config['IAM_ROLE']['NAME'],
+            AssumeRolePolicyDocument="test"
+        )
+
+        response = delete_iam_role(config, iam)
+        assert response['ResponseMetadata']['HTTPStatusCode'] == 200

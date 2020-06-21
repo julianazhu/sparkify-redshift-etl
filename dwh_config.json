@@ -15,8 +15,9 @@
     },
     "IAM_ROLE":{
         "NAME": "dwhRole",
-        "POLICY_NAME":"dwhRole-policy",
         "ARN": "arn:aws:iam::711914867513:role/dwhRole",
+        "POLICY_NAME":"dwhRole-policy",
+        "POLICY_ARN": "arn:aws:iam::711914867513:policy/dwhRole-policy",
         "TRUST_POLICY": {
             "Version": "2012-10-17",
             "Statement": [

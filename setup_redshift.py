@@ -74,7 +74,7 @@ def create_iam_role(config, iam):
         A dict of the created IAM role's attributes
     """
     print("Creating IAM Role: ", config['IAM_ROLE']['NAME'])
-    iam.create_role(
+    return iam.create_role(
         Path='/',
         RoleName=config['IAM_ROLE']['NAME'],
         AssumeRolePolicyDocument=json.dumps(
@@ -111,7 +111,7 @@ def attach_iam_role_policy(config, iam):
             config['IAM_ROLE']['NAME']
         )
     )
-    iam.attach_role_policy(
+    return iam.attach_role_policy(
         PolicyArn=response['Policy']['Arn'],
         RoleName=config['IAM_ROLE']['NAME']
     )
@@ -122,14 +122,14 @@ def start_redshift_cluster(config, redshift, role_arn):
 
     Args:
         config: a ConfigParser object
-        redshift: a boto3 client object for the AWS IAM service
+        redshift: a boto3 client object for the AWS Redshift service
         role_arn: String
 
     Returns:
         A dict with the AWS API response metadata of the create_cluster call
     """
     print("Creating Redshift Cluster: ", config['CLUSTER']['IDENTIFIER'])
-    redshift.create_cluster(
+    return redshift.create_cluster(
         DBName=config['CLUSTER']['DB_NAME'],
         ClusterIdentifier=config['CLUSTER']['IDENTIFIER'],
         ClusterType=config['CLUSTER']['CLUSTER_TYPE'],
@@ -147,7 +147,7 @@ def confirm_cluster_available(config, redshift):
 
     Args:
         config: a ConfigParser object
-        redshift: a boto3 client object for the AWS IAM service
+        redshift: a boto3 client object for the AWS Redshift service
 
     Returns:
          String describing cluster status: `available` or `not_available`
