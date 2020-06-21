@@ -57,24 +57,24 @@ CREATE TABLE staging_songs (
 
 songplay_table_create = ("""
 CREATE TABLE songplays (
-    songplay_id         string not null, 
-    start_time          bigint, 
-    user_id             integer, 
-    level               varchar(15), 
-    song_id             string, 
-    artist_id           integer, 
-    session_id          integer, 
-    location            string, 
+    songplay_id         string      not null    sortkey distkey,
+    start_time          bigint,
+    user_id             integer,
+    level               varchar(15),
+    song_id             string,
+    artist_id           integer,
+    session_id          integer,
+    location            string,
     user_agent          string
 );
 """)
 
 user_table_create = ("""
 CREATE TABLE songplays (
-    user_id             integer not null, 
-    first_name          string, 
-    last_name           string, 
-    gender              varchar(2), 
+    user_id             integer     not null    sortkey,
+    first_name          string,
+    last_name           string,
+    gender              varchar(2),
     level               varchar(15)
 )
 diststyle all;
@@ -82,7 +82,7 @@ diststyle all;
 
 song_table_create = ("""
 CREATE TABLE songs (
-    song_id             string not null,
+    song_id             string      not null    sortkey,
     title               string, 
     artist_id           integer, 
     year                integer, 
@@ -93,7 +93,7 @@ diststyle all;
 
 artist_table_create = ("""
 CREATE TABLE artists (
-    artist_id           integer not null,
+    artist_id           integer     not null    sortkey,
     name                string,
     location            string,
     latitude            float8,
@@ -104,7 +104,7 @@ diststyle all;
 
 time_table_create = ("""
 CREATE TABLE times (
-    start_time          bigint not null,
+    start_time          bigint      not null    sortkey,
     hour                integer,
     day                 integer,
     week                integer,
