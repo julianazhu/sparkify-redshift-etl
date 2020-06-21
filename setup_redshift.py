@@ -21,6 +21,7 @@ import os
 import time
 import json
 import boto3
+import time
 
 AWS_ACCESS_KEY = os.environ['AWS_ACCESS_KEY_ID']
 AWS_SECRET = os.environ['AWS_SECRET_ACCESS_KEY']
@@ -102,7 +103,7 @@ def attach_iam_role_policy(config, iam):
         iam: a boto3 client object for the AWS IAM service
 
     Returns:
-        None
+        A dict with AWS API response metadata on the attach_role_policy call
     """
     managed_policy_name = config['IAM_ROLE']['POLICY_NAME']
     response = iam.create_policy(
@@ -111,7 +112,7 @@ def attach_iam_role_policy(config, iam):
     )
     print("Created managed policy: ", managed_policy_name)
 
-    result = iam.attach_role_policy(
+    response = iam.attach_role_policy(
         PolicyArn=response['Policy']['Arn'],
         RoleName=config['IAM_ROLE']['NAME']
     )
@@ -121,7 +122,7 @@ def attach_iam_role_policy(config, iam):
             config['IAM_ROLE']['NAME']
         )
     )
-    return result
+    return response
 
 
 def start_redshift_cluster(config, redshift, role_arn):
@@ -133,7 +134,7 @@ def start_redshift_cluster(config, redshift, role_arn):
         role_arn: String
 
     Returns:
-         None
+        A dict with the AWS API response metadata of the create_cluster call
     """
     try:
         response = redshift.create_cluster(
@@ -148,12 +149,13 @@ def start_redshift_cluster(config, redshift, role_arn):
             IamRoles=[role_arn]
         )
         print("Created Redshift Cluster: ", config['CLUSTER']['IDENTIFIER'])
+        return response
 
     except Exception as e:
         print(e)
 
 
-def poll_cluster_live(config, redshift):
+def confirm_cluster_available(config, redshift):
     """ Repeatedly polls a redshift cluster until its status is `available`
 
     Args:
@@ -161,18 +163,25 @@ def poll_cluster_live(config, redshift):
         redshift: a boto3 client object for the AWS IAM service
 
     Returns:
-         None
+         String describing cluster status: `available` or `not_available`
     """
     print("Waiting for cluster to become live:")
 
-    cluster_available=False
-    while not cluster_available:
-        time.sleep(30)
-        cluster_available = redshift.describe_clusters(
+    timeout = time.time() + 60 * 6
+    cluster_status = "not_available"
+    while cluster_status != "available":
+        if time.time() >= timeout:
+            print("Cluster response has timed out. Please run "
+                  "redshift_cleanup.")
+            return cluster_status
+
+        cluster_status = redshift.describe_clusters(
             ClusterIdentifier=config['CLUSTER']['IDENTIFIER']
         )['Clusters'][0]['ClusterStatus']
+        time.sleep(30)
 
     print("Cluster %s is now live!".format(config['CLUSTER']['IDENTIFIER']))
+    return cluster_status
 
 
 def main():
@@ -184,7 +193,7 @@ def main():
     attach_iam_role_policy(config, iam)
     role_arn = iam.get_role(RoleName=config['IAM_ROLE']['NAME'])['Role']['Arn']
     start_redshift_cluster(config, redshift, role_arn)
-    poll_cluster_live(redshift)
+    confirm_cluster_available(config, redshift)
 
     print("All done, exit script.")
 

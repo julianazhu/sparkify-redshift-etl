@@ -8,7 +8,7 @@ import os
 import pytest
 import boto3
 import json
-from moto import mock_s3, mock_iam
+from moto import mock_redshift, mock_iam
 
 CFG_FILE = 'dwh_config.json'
 
@@ -32,7 +32,7 @@ def aws_credentials():
 
 @pytest.fixture(scope='function')
 def redshift(aws_credentials):
-    with mock_s3():
+    with mock_redshift():
         yield boto3.client('redshift', region_name='eu-central-1')
 
 
@@ -42,7 +42,7 @@ def iam(aws_credentials):
         yield boto3.client('iam', region_name='eu-central-1')
 
 
-def test_create_iam_role_and_attach_policy(config, iam):
+def test_creates_iam_role_and_attach_policy(config, iam):
     from setup_redshift import create_iam_role
     from setup_redshift import attach_iam_role_policy
 
@@ -52,3 +52,34 @@ def test_create_iam_role_and_attach_policy(config, iam):
 
         response = attach_iam_role_policy(config, iam)
         assert response['ResponseMetadata']['HTTPStatusCode'] == 200
+
+
+def test_creates_redshift_cluster(config, redshift):
+    from setup_redshift import start_redshift_cluster
+
+    with mock_redshift():
+        role_arn = "arn:aws:iam::711914867513:role/dwhRole"
+
+        response = start_redshift_cluster(config, redshift, role_arn)
+        assert response['ResponseMetadata']['HTTPStatusCode'] == 200
+
+
+def test_confirms_cluster_available(config, redshift, monkeypatch):
+    from setup_redshift import confirm_cluster_available
+    import time
+
+    def sleep(seconds):
+        pass
+
+    monkeypatch.setattr(time, 'sleep', sleep)
+
+    with mock_redshift():
+        redshift.create_cluster(
+            ClusterIdentifier=config['CLUSTER']['IDENTIFIER'],
+            NodeType=config['CLUSTER']['NODE_TYPE'],
+            MasterUsername=config['CLUSTER']['DB_USER'],
+            MasterUserPassword=config['CLUSTER']['DB_PASSWORD']
+        )
+
+        result = confirm_cluster_available(config, redshift)
+        assert result == 'available'

@@ -5,7 +5,7 @@
     "CLUSTER": {
         "HOST": "",
         "IDENTIFIER": "dwhCluster",
-        "CLUSTER_YPE": "multi-node",
+        "CLUSTER_TYPE": "multi-node",
         "NODE_TYPE": "dc2.large",
         "NUM_NODES": "4",
         "DB_NAME": "dwh",
