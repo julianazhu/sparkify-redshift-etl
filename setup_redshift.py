@@ -172,6 +172,15 @@ def confirm_cluster_available(config, redshift):
     return cluster_status
 
 
+def save_cluster_endpoint(config, redshift):
+    config['HOST'] = redshift.describe_clusters(
+        ClusterIdentifier=config['CLUSTER']['IDENTIFIER']
+    )['Clusters'][0]['Endpoint']['Address']
+
+    with open(CFG_FILE) as f:
+        json.dump(config, f)
+
+
 def main():
     with open(CFG_FILE) as f:
         config = json.load(f)
@@ -182,6 +191,7 @@ def main():
     role_arn = iam.get_role(RoleName=config['IAM_ROLE']['NAME'])['Role']['Arn']
     start_redshift_cluster(config, redshift, role_arn)
     confirm_cluster_available(config, redshift)
+    save_cluster_endpoint(config, redshift)
 
     print("All done, exit script.")
 

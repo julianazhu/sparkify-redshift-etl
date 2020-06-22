@@ -9,11 +9,15 @@ songplays   - records in log data associated with song plays
 users       - users in the app
 songs       - songs in music database
 artists     - artists in music database
-time        - timestamps of records in songplays broken down into specific units
+times        - timestamps of records in songplays broken down into specific
+units
 """
 import configparser
 import psycopg2
+import json
 from sql_queries import copy_table_queries, insert_table_queries
+
+CFG_FILE = 'dwh_config.json'
 
 
 def load_staging_tables(cur, conn):
@@ -29,12 +33,21 @@ def insert_tables(cur, conn):
 
 
 def main():
-    config = configparser.ConfigParser()
-    config.read('dwh_config.json')
+    with open(CFG_FILE) as f:
+        config = json.load(f)
 
-    conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(*config['CLUSTER'].values()))
+    conn = psycopg2.connect(
+        "host={} dbname={} user={} password={} port={}".format(
+            config['CLUSTER']['HOST'],
+            config['CLUSTER']['DB_NAME'],
+            config['CLUSTER']['DB_USER'],
+            config['CLUSTER']['DB_PASSWORD'],
+            config['CLUSTER']['DB_PORT'],
+        )
+    )
+
     cur = conn.cursor()
-    
+
     load_staging_tables(cur, conn)
     insert_tables(cur, conn)
 
