@@ -12,43 +12,45 @@ times       - timestamps of records in songplays broken down
               into specific units
 """
 
-import configparser
+import json
+
+CFG_FILE = 'dwh_config.json'
 
 
 # CONFIG
-config = configparser.ConfigParser()
-config.read('dwh_config.json')
+with open(CFG_FILE) as f:
+    config = json.load(f)
 
 # DROP TABLES
 
-staging_events_table_drop = "DROP TABLE IF EXISTS part staging_events;"
-staging_songs_table_drop = "DROP TABLE IF EXISTS part staging_songs;"
-songplay_table_drop = "DROP TABLE IF EXISTS part songplays;"
-user_table_drop = "DROP TABLE IF EXISTS part users;"
-song_table_drop = "DROP TABLE IF EXISTS part songs;"
-artist_table_drop = "DROP TABLE IF EXISTS part artists;"
-time_table_drop = "DROP TABLE IF EXISTS part times;"
+staging_events_table_drop = "DROP TABLE IF EXISTS staging_events;"
+staging_songs_table_drop = "DROP TABLE IF EXISTS staging_songs;"
+songplay_table_drop = "DROP TABLE IF EXISTS songplays;"
+user_table_drop = "DROP TABLE IF EXISTS users;"
+song_table_drop = "DROP TABLE IF EXISTS songs;"
+artist_table_drop = "DROP TABLE IF EXISTS artists;"
+time_table_drop = "DROP TABLE IF EXISTS times;"
 
 # CREATE TABLES
 
 staging_events_table_create = ("""
 CREATE TABLE staging_events (
     user_id             integer not null,
-    first_name          string,
-    last_name           string,
+    first_name          text,
+    last_name           text,
     level               varchar(15),
     gender              varchar(2),
     auth                varchar(30),
-    location            string,
+    location            text,
     page                varchar(20),
     method              varchar(8),
     status              integer,
-    user_agent          string,
+    user_agent          text,
     registration        float8,
     session_id          integer,
     item_in_session     integer,
-    artist     	        string,
-    song                string,
+    artist     	        text,
+    song                text,
     length              float4,
     ts                  bigint not null
 );
@@ -60,10 +62,10 @@ CREATE TABLE staging_songs (
     artist_id           integer not null,
     artist_latitude     float8,
     artist_longitude    float8,
-    artist_location     string,
-    artist_name         string,
-    song_id             string not null,
-    title               string,
+    artist_location     text,
+    artist_name         text,
+    song_id             text not null,
+    title               text,
     duration            float4,
     year                integer
 );
@@ -71,23 +73,23 @@ CREATE TABLE staging_songs (
 
 songplay_table_create = ("""
 CREATE TABLE songplays (
-    songplay_id         string      not null    sortkey distkey,
+    songplay_id         text      not null    sortkey distkey,
     start_time          bigint,
     user_id             integer,
     level               varchar(15),
-    song_id             string,
+    song_id             text,
     artist_id           integer,
     session_id          integer,
-    location            string,
-    user_agent          string
+    location            text,
+    user_agent          text
 );
 """)
 
 user_table_create = ("""
-CREATE TABLE songplays (
+CREATE TABLE users (
     user_id             integer     not null    sortkey,
-    first_name          string,
-    last_name           string,
+    first_name          text,
+    last_name           text,
     gender              varchar(2),
     level               varchar(15)
 )
@@ -96,11 +98,11 @@ diststyle all;
 
 song_table_create = ("""
 CREATE TABLE songs (
-    song_id             string      not null    sortkey,
-    title               string, 
+    song_id             text      not null    sortkey,
+    title               text, 
     artist_id           integer, 
     year                integer, 
-    duration            float4,
+    duration            float4
 )
 diststyle all;
 """)
@@ -108,8 +110,8 @@ diststyle all;
 artist_table_create = ("""
 CREATE TABLE artists (
     artist_id           integer     not null    sortkey,
-    name                string,
-    location            string,
+    name                text,
+    location            text,
     latitude            float8,
     longitude           float8
 )

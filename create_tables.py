@@ -6,15 +6,38 @@ CFG_FILE = 'dwh_config.json'
 
 
 def drop_tables(cur, conn):
+    """ Drops all the tables in Redshift Cluster
+
+    Args:
+        cur: Psycopg2 DB cursor object
+        conn: psycopg2 DB connection object
+
+    Returns:
+        None
+    """
     for query in drop_table_queries:
         cur.execute(query)
         conn.commit()
+    print("All tables dropped")
 
 
 def create_tables(cur, conn):
+    """ Creates the tables for Redshift cluster
+
+    staging_events, staging_songs, songplays,
+    users, songs, artists, times
+
+    Args:
+        cur: Psycopg2 DB cursor object
+        conn: psycopg2 DB connection object
+
+    Returns:
+        None
+    """
     for query in create_table_queries:
         cur.execute(query)
         conn.commit()
+    print("All tables created")
 
 
 def main():

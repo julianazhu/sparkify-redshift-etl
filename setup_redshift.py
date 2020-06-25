@@ -164,8 +164,8 @@ def save_cluster_endpoint(config, redshift):
         ClusterIdentifier=config['CLUSTER']['IDENTIFIER']
     )['Clusters'][0]['Endpoint']['Address']
 
-with open(CFG_FILE, 'w') as f:
-    json.dump(config, f)
+    with open(CFG_FILE, 'w') as f:
+        json.dump(config, f)
 
 
 def main():
