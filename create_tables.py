@@ -1,6 +1,8 @@
-import configparser
+import json
 import psycopg2
 from sql_queries import create_table_queries, drop_table_queries
+
+CFG_FILE = 'dwh_config.json'
 
 
 def drop_tables(cur, conn):
@@ -16,10 +18,19 @@ def create_tables(cur, conn):
 
 
 def main():
-    config = configparser.ConfigParser()
-    config.read('dwh_config.json')
+    with open(CFG_FILE) as f:
+        config = json.load(f)
 
-    conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(*config['CLUSTER'].values()))
+    conn = psycopg2.connect(
+        "host={} dbname={} user={} password={} port={}".format(
+            config['CLUSTER']['HOST'],
+            config['CLUSTER']['DB_NAME'],
+            config['CLUSTER']['DB_USER'],
+            config['CLUSTER']['DB_PASSWORD'],
+            config['CLUSTER']['DB_PORT'],
+        )
+    )
+
     cur = conn.cursor()
 
     drop_tables(cur, conn)

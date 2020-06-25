@@ -1,9 +1,7 @@
 """Sets up AWS resources that are required for the ETL Pipeline.
 
 This module should be called from the terminal to set up the AWS resources
-required for the `etl.py` pipeline script. You will need to export AWS
-credentials for an existing user with administrator rights before running
-this script.
+required for the `etl.py` pipeline script.
 
 This will create:
     - 1x IAM Role with S3 readonly access & Redshift Service access to EC2
@@ -37,17 +35,6 @@ def get_aws_clients(config):
         s3: AWS client object for s3 service
         redshift: AWS client object for Redshift service
     """
-    # ec2 = boto3.resource("ec2",
-    #                      region_name=config['AWS']['REGION'],
-    #                      aws_access_key_id=AWS_ACCESS_KEY,
-    #                      aws_secret_access_key=AWS_SECRET
-    #                      )
-    #
-    # s3 = boto3.resource("s3",
-    #                     region_name=config['AWS']['REGION'],
-    #                     aws_access_key_id=AWS_ACCESS_KEY,
-    #                     aws_secret_access_key=AWS_SECRET
-    #                     )
 
     iam = boto3.client("iam",
                        region_name=config['AWS']['REGION'],
@@ -173,12 +160,12 @@ def confirm_cluster_available(config, redshift):
 
 
 def save_cluster_endpoint(config, redshift):
-    config['HOST'] = redshift.describe_clusters(
+    config['CLUSTER']['HOST'] = redshift.describe_clusters(
         ClusterIdentifier=config['CLUSTER']['IDENTIFIER']
     )['Clusters'][0]['Endpoint']['Address']
 
-    with open(CFG_FILE) as f:
-        json.dump(config, f)
+with open(CFG_FILE, 'w') as f:
+    json.dump(config, f)
 
 
 def main():

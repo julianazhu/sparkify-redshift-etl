@@ -64,7 +64,7 @@ $ python3 cleanup_redshift.py
  including IAM role, permissions, Redshift cluster and DB.
 * _cleanup_redshift.py_ - A script that removes up created AWS resources
  including IAM role, permissions, Redshift cluster and DB.
-* _create_tables.py_ - Creates the tables on Redshift.
+* _create_tables.py_ - Creates the tables on Redshift DB.
 * _sql_queries.py_ - Queries specified by the Sparkify Analytics team.
 * _dwh_config.yaml_ - Configuration file defining constants related to AWS
  resources.

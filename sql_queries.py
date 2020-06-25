@@ -1,3 +1,17 @@
+"""
+SQL Queries for the Redshift cluster DB, following the star-schema:
+
+#####################    FACT TABLE:     ####################
+songplays   - records in log data associated with song plays
+
+##################### DIMENSION TABLES: #####################
+users       - users in the app
+songs       - songs in music database
+artists     - artists in music database
+times       - timestamps of records in songplays broken down
+              into specific units
+"""
+
 import configparser
 
 
@@ -105,12 +119,12 @@ diststyle all;
 time_table_create = ("""
 CREATE TABLE times (
     start_time          bigint      not null    sortkey,
-    hour                integer,
-    day                 integer,
-    week                integer,
-    month               integer,
-    year                integer,
-    weekday             integer
+    hour                integer     not null,
+    day                 integer     not null,
+    week                integer     not null,
+    month               integer     not null,
+    year                integer     not null,
+    weekday             integer     not null
 )
 diststyle all;
 """)

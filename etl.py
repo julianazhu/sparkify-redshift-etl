@@ -1,16 +1,7 @@
 """
 This module defines an ETL pipeline that imports data song and log
-data from .json files in AWS S3 buckets into a star-schema Redshift database
-with the following structure:
+data from .json files in AWS S3 buckets into a Redshift cluster.
 
-#####################    FACT TABLE:     ####################
-songplays   - records in log data associated with song plays
-##################### DIMENSION TABLES: #####################
-users       - users in the app
-songs       - songs in music database
-artists     - artists in music database
-times        - timestamps of records in songplays broken down into specific
-units
 """
 import configparser
 import psycopg2
@@ -21,6 +12,8 @@ CFG_FILE = 'dwh_config.json'
 
 
 def load_staging_tables(cur, conn):
+
+
     for query in copy_table_queries:
         cur.execute(query)
         conn.commit()
