@@ -1,6 +1,6 @@
 # sparkify-redshift-etl 
 ## Project Overview
-This is the second project in the 
+This is the third project in the 
 [Udacity Data Engineer Nanodegree](https://www.udacity.com/course/data-engineer-nanodegree--nd027).
 
 The virtual startup 'Sparkify' provides a music streaming service. In this
@@ -9,8 +9,7 @@ The virtual startup 'Sparkify' provides a music streaming service. In this
 
 Here we create ETL pipeline that extracts JSON log data of user activity & song 
 metadata from s3 buckets and stage them on Redshift, transforming the data
-into a set of fact and dimension tables to optimize queries that have been
-specified by the analytics team. 
+into a star-schema to optimize queries that have been specified by the analytics team. 
 
 We also support Sparkify's IaC scalability goals by automating the ETL pipeline
 infrastructure management using the 
@@ -29,14 +28,15 @@ $ export AWS_ACCESS_KEY_ID=<YOUR_AWS_ACCESS_KEY_ID>
 $ export AWS_SECRET_ACCESS_KEY=<YOUR_AWS_ACCESS_KEY_ID>
 ```
 
-3a. **OPTIONAL:** Run the Redshift setup script to create the necessary IAM 
+3. **OPTIONAL:** Run the Redshift setup script to create the necessary IAM 
 role, permissions, Redshift cluster if you do not already have those set up.
+
+You can adjust the configuration details (e.g. AWS region, DB credentials) by
+ editing `dwh_config.json` before running the setup script. 
+ 
 ```
 $ python3 setup_redshift.py
 ```
-
-3b. Replace the `dwh.cfg` configuration file with your AWS details for your 
-Redshift Cluster & IAM.
 
 4. Run the ETL scripts to load the data into the Redshift Cluster
 ```
@@ -44,10 +44,13 @@ python3 create_tables.py
 python3 etl.py
 ```
 
-5. **OPTIONAL** Run the teardown script to clean up your AWS resources
+5. **OPTIONAL:** Run the teardown script to clean up your AWS resources
 ```
 $ python3 cleanup_redshift.py
 ```
+
+## Dataset
+
 
 ## DB Schema Design
 

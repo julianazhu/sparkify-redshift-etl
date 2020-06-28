@@ -144,7 +144,7 @@ def confirm_cluster_available(config, redshift):
     timeout = time.time() + 60 * 6
     cluster_status = "not_available"
     while cluster_status != "available":
-        print("...", end='')    # loading "bar"
+        print("...", end='', flush=True)    # loading "bar"
         if time.time() >= timeout:
             print("Cluster response has timed out. Please run "
                   "redshift_cleanup.")
@@ -165,7 +165,7 @@ def save_cluster_endpoint(config, redshift):
     )['Clusters'][0]['Endpoint']['Address']
 
     with open(CFG_FILE, 'w') as f:
-        json.dump(config, f)
+        json.dump(config, f, indent=2)
 
 
 def main():

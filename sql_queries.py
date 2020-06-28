@@ -134,10 +134,23 @@ diststyle all;
 # STAGING TABLES
 
 staging_events_copy = ("""
-""").format()
+COPY staging_events from '{}' 
+credentials 'aws_iam_role={}'
+format as json '{}'
+region '{}';
+""").format(config['S3']['LOG_DATA'],
+            config['IAM_ROLE']['ARN'],
+            config['S3']['LOG_JSONPATH'],
+            config['AWS']['REGION'])
 
 staging_songs_copy = ("""
-""").format()
+    COPY staging_songs FROM {}
+    credentials 'aws_iam_role={}'
+    format as json 'auto'
+    region '{}';
+""").format(config['S3']['SONG_DATA'],
+            config['IAM_ROLE']['ARN'],
+            config['AWS']['REGION'])
 
 # FINAL TABLES
 

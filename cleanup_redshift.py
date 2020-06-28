@@ -38,6 +38,9 @@ def detach_and_delete_iam_policy(config, iam):
     Args:
         config: a ConfigParser object
         iam: a boto3 client object for the AWS IAM service
+
+    Returns:
+        dict with AWS API response
     """
     try:
         print("Detaching policy: ", config['IAM_ROLE']['POLICY_NAME'])
@@ -56,6 +59,9 @@ def delete_iam_role(config, iam):
     Args:
         config: a ConfigParser object
         iam: a boto3 client object for the AWS IAM service
+
+    Returns:
+        dict with AWS API response
     """
     try:
         print("Deleting IAM Role: ", config['IAM_ROLE']['NAME'])

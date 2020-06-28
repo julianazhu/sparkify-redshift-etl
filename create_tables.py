@@ -44,15 +44,16 @@ def main():
     with open(CFG_FILE) as f:
         config = json.load(f)
 
-    conn = psycopg2.connect(
-        "host={} dbname={} user={} password={} port={}".format(
-            config['CLUSTER']['HOST'],
-            config['CLUSTER']['DB_NAME'],
-            config['CLUSTER']['DB_USER'],
-            config['CLUSTER']['DB_PASSWORD'],
-            config['CLUSTER']['DB_PORT'],
-        )
+    db_conn_str = "host={} dbname={} user={} password={} port={}".format(
+        config['CLUSTER']['HOST'],
+        config['CLUSTER']['DB_NAME'],
+        config['CLUSTER']['DB_USER'],
+        config['CLUSTER']['DB_PASSWORD'],
+        config['CLUSTER']['DB_PORT'],
     )
+
+    print("Connecting to:", db_conn_str)
+    conn = psycopg2.connect(db_conn_str)
 
     cur = conn.cursor()
 

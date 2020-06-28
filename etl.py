@@ -12,9 +12,8 @@ CFG_FILE = 'dwh_config.json'
 
 
 def load_staging_tables(cur, conn):
-
-
     for query in copy_table_queries:
+        print(query)
         cur.execute(query)
         conn.commit()
 
@@ -42,7 +41,7 @@ def main():
     cur = conn.cursor()
 
     load_staging_tables(cur, conn)
-    insert_tables(cur, conn)
+    # insert_tables(cur, conn)
 
     conn.close()
 

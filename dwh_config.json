@@ -1,9 +1,9 @@
 {
   "AWS": {
-    "REGION": "eu-central-1"
+    "REGION": "us-west-2"
   },
   "CLUSTER": {
-    "HOST": "dwhcluster.cpcvfv6dbwjw.eu-central-1.redshift.amazonaws.com",
+    "HOST": "dwhcluster.c4mhyc0cslib.us-west-2.redshift.amazonaws.com",
     "IDENTIFIER": "dwhCluster",
     "CLUSTER_TYPE": "multi-node",
     "NODE_TYPE": "dc2.large",
@@ -47,6 +47,15 @@
             "ec2:CreateNetworkInterface",
             "ec2:DeleteNetworkInterface",
             "ec2:ModifyNetworkInterfaceAttribute"
+          ],
+          "Resource": "*"
+        },
+        {
+          "Sid": "AmazonS3ReadOnlyAccess",
+          "Effect": "Allow",
+          "Action": [
+            "s3:Get*",
+            "s3:List*"
           ],
           "Resource": "*"
         }
