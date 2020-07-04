@@ -1,3 +1,10 @@
+"""
+Drops the following tables in Redshift Cluster in the Sparkify DB and creates
+them again.
+
+Tables:
+    staging_events, staging_songs, songplays,users, songs, artists, time
+"""
 import json
 import psycopg2
 from sql_queries import create_table_queries, drop_table_queries

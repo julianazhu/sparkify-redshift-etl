@@ -21,8 +21,10 @@ infrastructure management using the
 $ pip3 install -r requirements.txt
 ```
 
-2. Export your AWS Account credentials as environment variables in your terminal 
-window:
+2. You will need an AWS user with rights to create IAM roles and Redshift
+ clusters. Export your AWS Account credentials as environment variables in
+ your terminal window:
+
 ```
 $ export AWS_ACCESS_KEY_ID=<YOUR_AWS_ACCESS_KEY_ID>
 $ export AWS_SECRET_ACCESS_KEY=<YOUR_AWS_ACCESS_KEY_ID>

@@ -1,7 +1,6 @@
 """
 This module defines an ETL pipeline that imports data song and log
-data from .json files in AWS S3 buckets into a Redshift cluster.
-
+data from .json files in AWS S3 buckets into a Redshift cluster DB.
 """
 import configparser
 import psycopg2
@@ -12,13 +11,32 @@ CFG_FILE = 'dwh_config.json'
 
 
 def load_staging_tables(cur, conn):
+    """ Loads song and log data from Udacity S3 buckets
+    into the staging tables.
+
+    Args:
+        cur: Psycopg2 DB cursor object
+        conn: psycopg2 DB connection object
+
+    Returns:
+        None
+    """
     for query in copy_table_queries:
-        print(query)
         cur.execute(query)
         conn.commit()
 
 
 def insert_tables(cur, conn):
+    """ Inserts data from staging tables into the
+    final star-schema fact & dimension tables
+
+    Args:
+        cur: Psycopg2 DB cursor object
+        conn: psycopg2 DB connection object
+
+    Returns:
+        None
+    """
     for query in insert_table_queries:
         cur.execute(query)
         conn.commit()

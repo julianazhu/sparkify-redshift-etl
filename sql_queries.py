@@ -35,38 +35,38 @@ time_table_drop = "DROP TABLE IF EXISTS times;"
 
 staging_events_table_create = ("""
 CREATE TABLE staging_events (
-    user_id             integer not null,
-    first_name          text,
-    last_name           text,
-    level               varchar(15),
-    gender              varchar(2),
+    artist     	        text,
     auth                varchar(30),
+    first_name          text,
+    gender              varchar(2),
+    item_in_session     integer,
+    last_name           text,
+    length              float4,
+    level               varchar(15),
     location            text,
-    page                varchar(20),
     method              varchar(8),
-    status              integer,
-    user_agent          text,
+    page                varchar(20),
     registration        float8,
     session_id          integer,
-    item_in_session     integer,
-    artist     	        text,
     song                text,
-    length              float4,
-    ts                  bigint not null
+    status              integer,
+    ts                  bigint,
+    user_agent          text,
+    user_id             integer
 );
 """)
 
 staging_songs_table_create = ("""
 CREATE TABLE staging_songs (
-    num_songs           integer,
-    artist_id           integer not null,
+    artist_id           varchar(30) not null,
     artist_latitude     float8,
-    artist_longitude    float8,
     artist_location     text,
+    artist_longitude    float8,
     artist_name         text,
+    duration            float4,
+    num_songs           integer,
     song_id             text not null,
     title               text,
-    duration            float4,
     year                integer
 );
 """)
@@ -109,7 +109,7 @@ diststyle all;
 
 artist_table_create = ("""
 CREATE TABLE artists (
-    artist_id           integer     not null    sortkey,
+    artist_id           varchar(30) not null    sortkey,
     name                text,
     location            text,
     latitude            float8,
@@ -137,17 +137,19 @@ staging_events_copy = ("""
 COPY staging_events from '{}' 
 credentials 'aws_iam_role={}'
 format as json '{}'
-region '{}';
+region '{}'
+truncatecolumns blanksasnull emptyasnull;
 """).format(config['S3']['LOG_DATA'],
             config['IAM_ROLE']['ARN'],
             config['S3']['LOG_JSONPATH'],
             config['AWS']['REGION'])
 
 staging_songs_copy = ("""
-    COPY staging_songs FROM {}
-    credentials 'aws_iam_role={}'
-    format as json 'auto'
-    region '{}';
+COPY staging_songs FROM '{}'
+credentials 'aws_iam_role={}'
+format as json 'auto'
+region '{}'
+truncatecolumns blanksasnull emptyasnull;
 """).format(config['S3']['SONG_DATA'],
             config['IAM_ROLE']['ARN'],
             config['AWS']['REGION'])
