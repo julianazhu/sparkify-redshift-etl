@@ -24,6 +24,7 @@ def load_staging_tables(cur, conn):
     for query in copy_table_queries:
         cur.execute(query)
         conn.commit()
+    print("Loaded the staging tables")
 
 
 def insert_tables(cur, conn):
@@ -40,6 +41,7 @@ def insert_tables(cur, conn):
     for query in insert_table_queries:
         cur.execute(query)
         conn.commit()
+    print("Loaded the production tables")
 
 
 def main():
@@ -59,7 +61,7 @@ def main():
     cur = conn.cursor()
 
     load_staging_tables(cur, conn)
-    # insert_tables(cur, conn)
+    insert_tables(cur, conn)
 
     conn.close()
 
