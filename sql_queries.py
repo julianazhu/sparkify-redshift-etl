@@ -100,7 +100,7 @@ song_table_create = ("""
 CREATE TABLE songs (
     song_id             TEXT      NOT NULL    SORTKEY,
     title               TEXT, 
-    artist_id           INTEGER, 
+    artist_id           VARCHAR(30), 
     year                INTEGER, 
     duration            FLOAT4
 )
@@ -201,9 +201,39 @@ WHERE user_id IS NOT NULL;
 """)
 
 song_table_insert = ("""
+INSERT INTO songs(
+    song_id,
+    title, 
+    artist_id, 
+    year, 
+    duration
+)
+SELECT DISTINCT
+    song_id,
+    song_title, 
+    artist_id, 
+    year, 
+    duration
+FROM staging_songs
+WHERE song_id IS NOT NULL;
 """)
 
 artist_table_insert = ("""
+INSERT INTO artists(
+    artist_id,
+    name,
+    location,
+    latitude,
+    longitude
+)
+SELECT DISTINCT
+    artist_id,
+    artist_name,
+    artist_location,
+    artist_latitude,
+    artist_longitude
+FROM staging_songs
+WHERE artist_id IS NOT NULL;
 """)
 
 time_table_insert = ("""
