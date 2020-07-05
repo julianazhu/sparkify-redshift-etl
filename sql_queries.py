@@ -167,21 +167,37 @@ INSERT INTO songplays (
     location,
     user_agent
 )
-SELECT s_events.user_id,
-       s_events.ts,
-       s_events.level,
-       s_songs.song_id,
-       s_songs.artist_id,
-       s_events.session_id,
-       s_events.location,
-       s_events.user_agent
+SELECT DISTINCT 
+    s_events.user_id,
+    s_events.ts,
+    s_events.level,
+    s_songs.song_id,
+    s_songs.artist_id,
+    s_events.session_id,
+    s_events.location,
+    s_events.user_agent
 FROM staging_songs s_songs
     JOIN staging_events s_events
         ON s_songs.song_title = s_events.song_title
-           AND s_songs.artist_name = s_events.artist_name;
+           AND s_songs.artist_name = s_events.artist_name
 """)
 
 user_table_insert = ("""
+INSERT INTO users(
+    user_id,
+    first_name,
+    last_name,
+    gender,
+    level
+)
+SELECT DISTINCT 
+    user_id,
+    first_name,
+    last_name,
+    gender,
+    level
+FROM staging_events
+WHERE user_id IS NOT NULL;
 """)
 
 song_table_insert = ("""
@@ -198,5 +214,4 @@ time_table_insert = ("""
 create_table_queries = [staging_events_table_create, staging_songs_table_create, songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
 drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
 copy_table_queries = [staging_events_copy, staging_songs_copy]
-insert_table_queries = [songplay_table_insert]
-# insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
+insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
