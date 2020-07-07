@@ -50,7 +50,7 @@ CREATE TABLE staging_events (
     session_id          INTEGER,
     song_title          TEXT,
     status              INTEGER,
-    ts                  BIGINT,
+    ts                  TIMESTAMP,
     user_agent          TEXT,
     user_id             INTEGER
 );
@@ -74,7 +74,7 @@ CREATE TABLE staging_songs (
 songplay_table_create = ("""
 CREATE TABLE songplays (
     songplay_id         INTEGER IDENTITY(0,1)   PRIMARY KEY   SORTKEY DISTKEY,
-    start_time          BIGINT,
+    start_time          TIMESTAMP,
     user_id             INTEGER,
     level               VARCHAR(15),
     song_id             TEXT,
@@ -120,7 +120,7 @@ diststyle all;
 
 time_table_create = ("""
 CREATE TABLE times (
-    start_time          BIGINT      NOT NULL    SORTKEY,
+    start_time          TIMESTAMP   NOT NULL    SORTKEY,
     hour                INTEGER     NOT NULL,
     day                 INTEGER     NOT NULL,
     week                INTEGER     NOT NULL,
@@ -138,6 +138,7 @@ COPY staging_events FROM '{}'
 CREDENTIALS 'aws_iam_role={}'
 FORMAT AS JSON '{}'
 REGION '{}'
+TIMEFORMAT 'epochmillisecs'
 TRUNCATECOLUMNS BLANKSASNULL EMPTYASNULL;
 """).format(config['S3']['LOG_DATA'],
             config['IAM_ROLE']['ARN'],
@@ -237,6 +238,24 @@ WHERE artist_id IS NOT NULL;
 """)
 
 time_table_insert = ("""
+INSERT INTO times(
+    start_time,
+    hour,
+    day,
+    week,
+    month,
+    year,
+    weekday
+)
+SELECT DISTINCT
+    ts,
+    EXTRACT(HOUR FROM ts),
+    EXTRACT(DAY FROM ts),
+    EXTRACT(WEEK FROM ts),
+    EXTRACT(MONTH FROM ts),
+    EXTRACT(YEAR FROM ts),
+    EXTRACT(DOW FROM ts)
+FROM staging_events;
 """)
 
 # QUERY LISTS
