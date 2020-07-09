@@ -7,8 +7,8 @@ The virtual startup 'Sparkify' provides a music streaming service. In this
  project we imagine that Sparkify has grown and we are shifting to using cloud 
  services for our data warehousing needs. 
 
-Here we create ETL pipeline that extracts JSON log data of user activity & song 
-metadata from s3 buckets and stage them on Redshift, transforming the data
+Here we create an ETL pipeline that extracts JSON log data of user activity
+ & song metadata from s3 buckets and stage them on Redshift, transforming the data
 into a star-schema to optimize queries that have been specified by the analytics team. 
 
 We also support Sparkify's IaC scalability goals by automating the ETL pipeline
@@ -31,9 +31,8 @@ $ export AWS_SECRET_ACCESS_KEY=<YOUR_AWS_ACCESS_KEY_ID>
 ```
 
 3. **OPTIONAL:** Run the Redshift setup script to create the necessary IAM 
-role, permissions, Redshift cluster if you do not already have those set up.
-
-You can adjust the configuration details (e.g. AWS region, DB credentials) by
+role, permissions, Redshift cluster if you do not already have those set up
+. You can adjust the configuration details (e.g. AWS region, DB credentials) by
  editing `dwh_config.json` before running the setup script. 
  
 ```
@@ -52,7 +51,7 @@ $ python3 cleanup_redshift.py
 ```
 
 ## DB Schema Design
-[Sparkify DB](images/sparkify_db.png)
+![Sparkify DB Schema](images/sparkify_db.png?raw=true "Sparkify DB Schema")
 _Image created with [QuickDBD](https://app.quickdatabasediagrams.com/)_
 
 ## Sample Analytical Queries
