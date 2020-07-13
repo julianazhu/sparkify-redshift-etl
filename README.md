@@ -45,19 +45,27 @@ python3 create_tables.py
 python3 etl.py
 ```
 
-5. **OPTIONAL:** Run the teardown script to clean up your AWS resources
+5. **RECOMMENDED:** Run the teardown script to clean up your AWS resources.
 ```
 $ python3 cleanup_redshift.py
 ```
 
 ## DB Schema Design
+The data is loaded into a star-schema DB optimized on queries related to
+songplays in the app. As they are small, each of the dimension tables is
+distributed equally across each of the redshift nodes to optimize joins on
+the fact table, `songplays`. 
+
 ![Sparkify DB Schema](images/sparkify_db.png?raw=true "Sparkify DB Schema")
 _Image created with [QuickDBD](https://app.quickdatabasediagrams.com/)_
 
 ## Sample Analytical Queries
+The `dashboard.ipynb` Juptyer Notebook contains some sample analytical
+queries that demonstrate potential use-cases for this DB, as well as some
+graphs of the data/tables.
 
 
-#### Project Files
+## Project Files
 * _etl.py_ - The main script that runs the ETL Pipeline from S3 to Redshift.
 * _setup_redshift.py_ - A script that sets up the required AWS resources
  including IAM role, permissions, Redshift cluster and DB.
@@ -65,10 +73,11 @@ _Image created with [QuickDBD](https://app.quickdatabasediagrams.com/)_
  including IAM role, permissions, Redshift cluster and DB.
 * _create_tables.py_ - Creates the tables on Redshift DB.
 * _sql_queries.py_ - Queries specified by the Sparkify Analytics team.
-* _dwh_config.yaml_ - Configuration file defining constants related to AWS
+* _dwh_config.json_ - Configuration file defining constants related to AWS
  resources.
+* _dashboard.ipynb_ - Some graphs of the DB plus some sample analytical queries.
 
-## Dataset
+## Datasets
 #### Song Dataset
 The first dataset is a subset of real data from the [Million Song Dataset](http://millionsongdataset.com/). 
 Each file is in JSON format and contains metadata about a song and the artist

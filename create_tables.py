@@ -59,9 +59,7 @@ def main():
         config['CLUSTER']['DB_PORT'],
     )
 
-    print("Connecting to:", db_conn_str)
     conn = psycopg2.connect(db_conn_str)
-
     cur = conn.cursor()
 
     drop_tables(cur, conn)

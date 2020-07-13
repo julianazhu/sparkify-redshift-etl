@@ -66,7 +66,7 @@ CREATE TABLE staging_songs (
     duration            FLOAT4,
     num_songs           INTEGER,
     song_id             TEXT NOT NULL,
-    song_title          TEXT,
+    title               TEXT,
     year                INTEGER
 );
 """)
@@ -179,7 +179,7 @@ SELECT DISTINCT
     s_events.user_agent
 FROM staging_songs s_songs
     JOIN staging_events s_events
-        ON s_songs.song_title = s_events.song_title
+        ON s_songs.title = s_events.song_title
            AND s_songs.artist_name = s_events.artist_name
 """)
 
@@ -211,7 +211,7 @@ INSERT INTO songs(
 )
 SELECT DISTINCT
     song_id,
-    song_title, 
+    title, 
     artist_id, 
     year, 
     duration
