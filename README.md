@@ -8,8 +8,9 @@ The virtual startup 'Sparkify' provides a music streaming service. In this
  services for our data warehousing needs. 
 
 Here we create an ETL pipeline that extracts JSON log data of user activity
- & song metadata from s3 buckets and stage them on Redshift, transforming the data
-into a star-schema to optimize queries that have been specified by the analytics team. 
+ & song metadata from s3 buckets and stage them on Redshift, transforming the 
+ data into a star-schema db to optimize queries that have been specified by the
+ analytics team. 
 
 We also support Sparkify's IaC scalability goals by automating the ETL pipeline
 infrastructure management using the 
@@ -36,18 +37,18 @@ role, permissions, Redshift cluster if you do not already have those set up
  editing `dwh_config.json` before running the setup script. 
  
 ```
-$ python3 setup_redshift.py
+$ python3 -m redshift.setup
 ```
 
 4. Run the ETL scripts to load the data into the Redshift Cluster
 ```
-python3 create_tables.py
-python3 etl.py
+python3 -m redshift.create_tables
+python3 -m redshift.etl
 ```
 
 5. **RECOMMENDED:** Run the teardown script to clean up your AWS resources.
 ```
-$ python3 cleanup_redshift.py
+$ python3 $ python3 -m redshift.cleanup
 ```
 
 ## DB Schema Design
@@ -61,21 +62,22 @@ _Image created with [QuickDBD](https://app.quickdatabasediagrams.com/)_
 
 ## Sample Analytical Queries
 The `dashboard.ipynb` Juptyer Notebook contains some sample analytical
-queries that demonstrate potential use-cases for this DB, as well as some
-graphs of the data/tables.
+queries that demonstrate potential use-cases for this data warehouse, as well as
+ some graphs of the data/tables.
 
 
 ## Project Files
-* _etl.py_ - The main script that runs the ETL Pipeline from S3 to Redshift.
-* _setup_redshift.py_ - A script that sets up the required AWS resources
- including IAM role, permissions, Redshift cluster and DB.
-* _cleanup_redshift.py_ - A script that removes up created AWS resources
- including IAM role, permissions, Redshift cluster and DB.
-* _create_tables.py_ - Creates the tables on Redshift DB.
-* _sql_queries.py_ - Queries specified by the Sparkify Analytics team.
-* _dwh_config.json_ - Configuration file defining constants related to AWS
- resources.
 * _dashboard.ipynb_ - Some graphs of the DB plus some sample analytical queries.
+* _redshift/etl.py_ - The main script that loads the data from S3 to Redshift.
+* _redshift/setup_redshift.py_ - A script that sets up the required AWS resources
+ including IAM role, permissions, Redshift cluster and DB.
+* _redshift/cleanup.py_ - A script that removes up created AWS resources
+ including IAM role, permissions, Redshift cluster and DB.
+* _redshift/create_tables.py_ - Creates the tables on Redshift DB.
+* _redshift/queries.py_ - Queries specified by the Sparkify Analytics team.
+* _redshift/dwh_config.json_ - Configuration file defining constants related to 
+AWS resources.
+ 
 
 ## Datasets
 #### Song Dataset

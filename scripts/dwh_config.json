@@ -1,0 +1,70 @@
+{
+  "AWS": {
+    "REGION": "us-west-2"
+  },
+  "CLUSTER": {
+    "HOST": "dwhcluster.c4mhyc0cslib.us-west-2.redshift.amazonaws.com",
+    "IDENTIFIER": "dwhCluster",
+    "CLUSTER_TYPE": "multi-node",
+    "NODE_TYPE": "dc2.large",
+    "NUM_NODES": "4",
+    "DB_NAME": "dwh",
+    "DB_USER": "dwhuser",
+    "DB_PASSWORD": "Passw0rd",
+    "DB_PORT": "5439"
+  },
+  "IAM_ROLE": {
+    "NAME": "dwhRole",
+    "ARN": "arn:aws:iam::711914867513:role/dwhRole",
+    "POLICY_NAME": "dwhRole-policy",
+    "POLICY_ARN": "arn:aws:iam::711914867513:policy/dwhRole-policy",
+    "TRUST_POLICY": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "",
+          "Effect": "Allow",
+          "Principal": {
+            "Service": "redshift.amazonaws.com"
+          },
+          "Action": "sts:AssumeRole"
+        }
+      ]
+    },
+    "MANAGED_POLICY": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "AmazonRedshiftServiceLinkedRolePolicy",
+          "Effect": "Allow",
+          "Action": [
+            "ec2:DescribeVpcs",
+            "ec2:DescribeSubnets",
+            "ec2:DescribeNetworkInterfaces",
+            "ec2:DescribeAddresses",
+            "ec2:AssociateAddress",
+            "ec2:DisassociateAddress",
+            "ec2:CreateNetworkInterface",
+            "ec2:DeleteNetworkInterface",
+            "ec2:ModifyNetworkInterfaceAttribute"
+          ],
+          "Resource": "*"
+        },
+        {
+          "Sid": "AmazonS3ReadOnlyAccess",
+          "Effect": "Allow",
+          "Action": [
+            "s3:Get*",
+            "s3:List*"
+          ],
+          "Resource": "*"
+        }
+      ]
+    }
+  },
+  "S3": {
+    "LOG_DATA": "s3://udacity-dend/log_data",
+    "LOG_JSONPATH": "s3://udacity-dend/log_json_path.json",
+    "SONG_DATA": "s3://udacity-dend/song_data"
+  }
+}
