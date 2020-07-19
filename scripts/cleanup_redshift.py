@@ -8,7 +8,7 @@ Typical Usage example:
 """
 import os
 import json
-from scripts.setup_redshift import get_aws_clients
+from setup_redshift import get_aws_clients
 
 AWS_ACCESS_KEY = os.environ['AWS_ACCESS_KEY_ID']
 AWS_SECRET = os.environ['AWS_SECRET_ACCESS_KEY']
