@@ -1,19 +1,8 @@
 """Sets up AWS resources that are required for the ETL Pipeline.
 
-This module should be called from the terminal to set up the AWS resources
-required for the `etl.py` pipeline script.
-
 This will create:
     - 1x IAM Role with S3 readonly access & Redshift Service access to EC2
     - 1x Redshift Cluster
-
-Role & cluster details e.g. number of nodes can be configured by updating
-`dwh_config.json` prior to running this script.
-
-Typical Usage example:
-    $ export AWS_ACCESS_KEY_ID=<your_aws_access_key_id>
-    $ export AWS_SECRET_ACCESS_KEY=<your_aws_secret_access_key>
-    $ python3 setup_redshift.py
 """
 import os
 import json
@@ -168,7 +157,7 @@ def save_cluster_endpoint(config, redshift):
         json.dump(config, f, indent=2)
 
 
-def main():
+def setup_redshift_cluster():
     with open(CFG_FILE) as f:
         config = json.load(f)
 
@@ -179,9 +168,3 @@ def main():
     start_redshift_cluster(config, redshift, role_arn)
     confirm_cluster_available(config, redshift)
     save_cluster_endpoint(config, redshift)
-
-    print("All done, exit script.")
-
-
-if __name__ == "__main__":
-    main()

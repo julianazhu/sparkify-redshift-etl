@@ -5,7 +5,7 @@ data from .json files in AWS S3 buckets into a Redshift cluster DB.
 import configparser
 import psycopg2
 import json
-from sql_queries import copy_table_queries, insert_table_queries
+from scripts.sql_queries import copy_table_queries, insert_table_queries
 
 CFG_FILE = 'dwh_config.json'
 
@@ -44,7 +44,7 @@ def insert_tables(cur, conn):
     print("Loaded the production tables")
 
 
-def main():
+def etl():
     with open(CFG_FILE) as f:
         config = json.load(f)
 
@@ -64,7 +64,3 @@ def main():
     insert_tables(cur, conn)
 
     conn.close()
-
-
-if __name__ == "__main__":
-    main()

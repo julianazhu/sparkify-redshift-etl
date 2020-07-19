@@ -8,7 +8,7 @@ Typical Usage example:
 """
 import os
 import json
-from setup_redshift import get_aws_clients
+from scripts.setup_redshift import get_aws_clients
 
 AWS_ACCESS_KEY = os.environ['AWS_ACCESS_KEY_ID']
 AWS_SECRET = os.environ['AWS_SECRET_ACCESS_KEY']
@@ -70,7 +70,7 @@ def delete_iam_role(config, iam):
         print(e)
 
 
-def main():
+def cleanup_redshift_cluster():
     with open(CFG_FILE) as f:
         config = json.load(f)
 
@@ -83,4 +83,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    cleanup_redshift_cluster()

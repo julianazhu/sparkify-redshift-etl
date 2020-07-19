@@ -30,24 +30,21 @@ $ export AWS_ACCESS_KEY_ID=<YOUR_AWS_ACCESS_KEY_ID>
 $ export AWS_SECRET_ACCESS_KEY=<YOUR_AWS_ACCESS_KEY_ID>
 ```
 
-3. **OPTIONAL:** Run the Redshift setup script to create the necessary IAM 
-role, permissions, Redshift cluster if you do not already have those set up
-. You can adjust the configuration details (e.g. AWS region, DB credentials) by
+3. Run the script with `-c` to to create the necessary IAM  role, permissions
+ and Redshift cluster if you do not already have those set up. You can adjust
+the configuration details (e.g. AWS region, DB credentials) by
  editing `dwh_config.json` before running the setup script. 
  
+If you already have the cluster set up, run the script without the optional
+ argument. 
+ 
 ```
-$ python3 setup_redshift.py
-```
-
-4. Run the ETL scripts to load the data into the Redshift Cluster
-```
-python3 create_tables.py
-python3 etl.py
+$ python3 sparkify_redshift.py [-c]
 ```
 
 5. **RECOMMENDED:** Run the teardown script to clean up your AWS resources.
 ```
-$ python3 cleanup_redshift.py
+$ python3 scripts/cleanup_redshift.py
 ```
 
 ## DB Schema Design

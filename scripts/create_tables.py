@@ -7,7 +7,7 @@ Tables:
 """
 import json
 import psycopg2
-from sql_queries import create_table_queries, drop_table_queries
+from scripts.sql_queries import create_table_queries, drop_table_queries
 
 CFG_FILE = 'dwh_config.json'
 
@@ -47,7 +47,7 @@ def create_tables(cur, conn):
     print("All tables created")
 
 
-def main():
+def create_db_tables():
     with open(CFG_FILE) as f:
         config = json.load(f)
 
@@ -66,7 +66,3 @@ def main():
     create_tables(cur, conn)
 
     conn.close()
-
-
-if __name__ == "__main__":
-    main()
